@@ -1,0 +1,11 @@
+*test.go
+*.out
+go.work
+.idea
+cmake-build-*/
+*.iml
+modules.xml
+*.ipr
+.DS_Store
+.AppleDouble
+.LSOverride
