@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"io"
 	"net/http"
+	"strconv"
 )
 
 type BasketHandler struct {
@@ -18,7 +19,11 @@ func NewBasketHandler(repo repository.Basket) *BasketHandler {
 }
 
 func (h *BasketHandler) BasketList(c echo.Context) error {
-	return nil
+	basketList, err := h.repo.Get(nil)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, map[string]any{"basketList": basketList})
 }
 
 func (h *BasketHandler) BasketAdd(c echo.Context) error {
@@ -39,11 +44,24 @@ func (h *BasketHandler) BasketAdd(c echo.Context) error {
 }
 
 func (h *BasketHandler) UpdateBasket(c echo.Context) error {
+
 	return nil
 }
 
 func (h *BasketHandler) GetBasket(c echo.Context) error {
-	return nil
+	basketId := c.Param("id")
+	id, err := strconv.Atoi(basketId)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+	}
+	uid := uint(id)
+	basket, err := h.repo.Get(&uid)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+	}
+	firstBasket := basket[0]
+
+	return c.JSON(http.StatusOK, map[string]any{"data": firstBasket})
 }
 
 func (h *BasketHandler) DeleteBasket(c echo.Context) error {
