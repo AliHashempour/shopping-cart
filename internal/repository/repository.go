@@ -10,7 +10,7 @@ type Basket interface {
 	Get(id *uint) ([]*model.Basket, error)
 	Create(*model.Basket) error
 	Update(*model.Basket) error
-	Delete(*model.Basket) error
+	Delete(id *uint) error
 }
 
 // BasketRepo struct
@@ -28,7 +28,7 @@ func (repo *BasketRepo) Get(id *uint) ([]*model.Basket, error) {
 	var baskets []*model.Basket
 	if id != nil {
 		var basket model.Basket
-		if err := repo.db.First(&basket, *id).Error; err != nil {
+		if err := repo.db.First(&basket, id).Error; err != nil {
 			return nil, err
 		}
 		baskets = append(baskets, &basket)
@@ -51,6 +51,6 @@ func (repo *BasketRepo) Update(basket *model.Basket) error {
 }
 
 // Delete deletes a basket
-func (repo *BasketRepo) Delete(basket *model.Basket) error {
-	return repo.db.Delete(basket).Error
+func (repo *BasketRepo) Delete(id *uint) error {
+	return repo.db.Delete(&model.Basket{}, id).Error
 }
