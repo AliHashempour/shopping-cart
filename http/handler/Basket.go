@@ -106,8 +106,9 @@ func (h *BasketHandler) DeleteBasket(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 	}
-	uid := uint(id)
-	err = h.repo.Delete(&uid)
+	var deletedBasket model.Basket
+	deletedBasket.ID = uint(id)
+	err = h.repo.Delete(&deletedBasket)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 	}

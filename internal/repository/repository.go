@@ -7,10 +7,10 @@ import (
 
 // Basket interface
 type Basket interface {
-	Get(id *uint) ([]*model.Basket, error)
+	Get(*uint) ([]*model.Basket, error)
 	Create(*model.Basket) error
 	Update(*model.Basket) error
-	Delete(id *uint) error
+	Delete(*model.Basket) error
 }
 
 // BasketRepo struct
@@ -51,6 +51,6 @@ func (repo *BasketRepo) Update(basket *model.Basket) error {
 }
 
 // Delete deletes a basket
-func (repo *BasketRepo) Delete(id *uint) error {
-	return repo.db.Delete(&model.Basket{}, id).Error
+func (repo *BasketRepo) Delete(basket *model.Basket) error {
+	return repo.db.Delete(basket).Error
 }
