@@ -11,13 +11,13 @@ import (
 )
 
 func main() {
-	// Initialize the database
 	db, err := database.InitializeDB()
 	if err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
 
 	basketHandler := handler.NewBasketHandler(repository.NewBasketRepo(db))
+	userHandler := handler.NewUserHandler(repository.NewUserRepo(db))
 
 	e := echo.New()
 	baskets := e.Group("/basket")
@@ -29,7 +29,12 @@ func main() {
 		baskets.DELETE("/:id", basketHandler.DeleteBasket)
 	}
 
-	// Start the server on port 8080
+	auth := e.Group("/auth")
+	{
+		auth.POST("/register", userHandler.Register)
+		auth.POST("/login", userHandler.Login)
+	}
+
 	if err := e.Start(":8080"); err != nil {
 		log.Fatalf("Error starting server: %v", err)
 	}
