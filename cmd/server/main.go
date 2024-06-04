@@ -20,6 +20,7 @@ func main() {
 
 	e := echo.New()
 	baskets := e.Group("/basket")
+	baskets.Use(middleware.JWTMiddleware)
 	{
 		baskets.GET("/", basketHandler.BasketList)
 		baskets.POST("/", basketHandler.BasketAdd)
@@ -27,8 +28,6 @@ func main() {
 		baskets.PATCH("/:id", basketHandler.UpdateBasket)
 		baskets.DELETE("/:id", basketHandler.DeleteBasket)
 	}
-	baskets.Use(middleware.JWTMiddleware)
-
 	auth := e.Group("/auth")
 	{
 		auth.POST("/register", userHandler.Register)

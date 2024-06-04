@@ -9,7 +9,7 @@ var SecretKey = []byte("secret-key")
 
 type Claims struct {
 	jwt.RegisteredClaims
-	UserId uint `json:"user_id"`
+	UserId uint
 }
 
 func GenerateToken(userId uint) (string, error) {
