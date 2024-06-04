@@ -7,7 +7,7 @@ import (
 
 // Basket interface
 type Basket interface {
-	Get(*uint) ([]*model.Basket, error)
+	Get(basketId *uint, userId *uint) ([]*model.Basket, error)
 	Create(*model.Basket) error
 	Update(*model.Basket) error
 	Delete(*model.Basket) error
@@ -24,18 +24,19 @@ func NewBasketRepo(db *gorm.DB) *BasketRepo {
 }
 
 // Get retrieves one or more baskets based on the provided ID
-func (repo *BasketRepo) Get(id *uint) ([]*model.Basket, error) {
+func (repo *BasketRepo) Get(basketId *uint, userId *uint) ([]*model.Basket, error) {
 	var baskets []*model.Basket
-	if id != nil {
-		var basket model.Basket
-		if err := repo.db.First(&basket, id).Error; err != nil {
-			return nil, err
-		}
-		baskets = append(baskets, &basket)
-	} else {
-		if err := repo.db.Find(&baskets).Error; err != nil {
-			return nil, err
-		}
+	query := repo.db
+
+	if basketId != nil {
+		query = query.Where("id = ?", basketId)
+	}
+	if userId != nil {
+		query = query.Where("user_id = ?", userId)
+	}
+
+	if err := query.Find(&baskets).Error; err != nil {
+		return nil, err
 	}
 	return baskets, nil
 }

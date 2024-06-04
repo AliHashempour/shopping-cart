@@ -1,7 +1,8 @@
 package middleware
 
 import (
-	jwtUtil "basket/http/jwt" // Assuming this is the correct path
+	jwtUtil "basket/http/jwt"
+	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -10,31 +11,28 @@ import (
 
 func JWTMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		authorizationHeader := c.Request().Header.Get("Authorization")
-		if authorizationHeader == "" {
-			return echo.NewHTTPError(http.StatusUnauthorized, "Missing Authorization header")
+		authHeader := c.Request().Header.Get("Authorization")
+		if authHeader == "" {
+			return echo.NewHTTPError(http.StatusUnauthorized, "Authorization header is required")
 		}
-		tokenString := strings.TrimPrefix(authorizationHeader, "Bearer ")
-		if tokenString == authorizationHeader {
+
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+		if tokenString == authHeader {
 			return echo.NewHTTPError(http.StatusUnauthorized, "Bearer token not found")
 		}
 
-		claims := &jwtUtil.Claims{}
-		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, echo.NewHTTPError(http.StatusUnauthorized, "Unexpected signing method")
-			}
-			return []byte("jwt-secret"), nil
+		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			return jwtUtil.SecretKey, nil
 		})
 
 		if err != nil {
-			return echo.NewHTTPError(http.StatusUnauthorized, "Invalid or expired JWT")
+			return c.JSON(http.StatusUnauthorized, map[string]interface{}{"error": err.Error()})
 		}
-		if token.Valid {
-			c.Set("userId", claims.UserId)
-			return next(c)
-		} else {
-			return echo.NewHTTPError(http.StatusUnauthorized, "Invalid JWT claims")
+
+		if !token.Valid {
+			return fmt.Errorf("invalid token")
 		}
+
+		return echo.NewHTTPError(http.StatusUnauthorized, "Invalid JWT claims")
 	}
 }
