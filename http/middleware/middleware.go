@@ -2,7 +2,6 @@ package middleware
 
 import (
 	jwtUtil "basket/http/jwt"
-	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -29,10 +28,14 @@ func JWTMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			return c.JSON(http.StatusUnauthorized, map[string]interface{}{"error": err.Error()})
 		}
 
-		if !token.Valid {
-			return fmt.Errorf("invalid token")
+		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+			if userId, ok := claims["sub"].(string); ok {
+				c.Set("userId", userId)
+				return next(c)
+			}
 		}
 
 		return echo.NewHTTPError(http.StatusUnauthorized, "Invalid JWT claims")
+
 	}
 }
