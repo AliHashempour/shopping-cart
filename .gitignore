@@ -10,3 +10,4 @@ modules.xml
 .AppleDouble
 .LSOverride
 *.db
+*.env
