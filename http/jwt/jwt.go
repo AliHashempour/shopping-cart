@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-var jwtSecret = "jwt-secret"
+var SecretKey = []byte("secret-key")
 
 type Claims struct {
 	jwt.RegisteredClaims
@@ -13,16 +13,16 @@ type Claims struct {
 }
 
 func GenerateToken(userId uint) (string, error) {
-	expirationTime := time.Now().Add(1 * time.Hour)
-	claims := Claims{
-		UserId: userId,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(expirationTime),
-			Issuer:    "basket-app",
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-		},
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
+		jwt.MapClaims{
+			"userId": userId,
+			"exp":    time.Now().Add(time.Hour * 24).Unix(),
+		})
+
+	tokenString, err := token.SignedString(SecretKey)
+	if err != nil {
+		return "", err
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(jwtSecret))
+	return tokenString, nil
 }
