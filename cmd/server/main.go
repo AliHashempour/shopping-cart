@@ -1,13 +1,12 @@
 package main
 
 import (
-	"basket/internal/repository"
-	"log"
-
 	"basket/http/handler"
+	"basket/http/middleware"
 	"basket/internal/database"
-
+	"basket/internal/repository"
 	"github.com/labstack/echo/v4"
+	"log"
 )
 
 func main() {
@@ -28,6 +27,7 @@ func main() {
 		baskets.PATCH("/:id", basketHandler.UpdateBasket)
 		baskets.DELETE("/:id", basketHandler.DeleteBasket)
 	}
+	baskets.Use(middleware.JWTMiddleware)
 
 	auth := e.Group("/auth")
 	{
